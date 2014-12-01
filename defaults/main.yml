@@ -7,3 +7,5 @@ tomcat_https_port: 8443
 
 tomcat_admin_username: admin
 tomcat_admin_password: microsoft
+
+tomcat_jdk_enable: no
