@@ -5,7 +5,9 @@
 Ensures that tomcat is properly installed (using `apt`) and configured
 
 
+### Role dependencies
 
+- `alban.andrieu.common`
 
 ### Role variables
 
@@ -21,6 +23,9 @@ List of default variables available in the inventory:
     
     tomcat_admin_username: admin
     tomcat_admin_password: microsoft
+    
+    tomcat_jdk_enable: no
+    tomcat_started_check_enable: yes
 ```
 
 
