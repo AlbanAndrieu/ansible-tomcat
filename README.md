@@ -19,6 +19,10 @@ List of default variables available in the inventory:
     tomcat_http_port: 8280
     tomcat_https_port: 8443
     
+    tomcat_catalina_home_dir: "/usr/share/tomcat7"
+    tomcat_catalina_base_dir: "/var/lib/tomcat7"
+    tomcat_conf_dir: "/etc/tomcat7"
+    
     # This will configure a default manager-gui user:
     
     tomcat_admin_username: admin
@@ -26,6 +30,7 @@ List of default variables available in the inventory:
     
     tomcat_jdk_enable: no
     tomcat_started_check_enable: yes
+    tomcat_startup_enabled: no #Disable specific overrid of catalina.sh
 ```
 
 
