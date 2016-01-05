@@ -6,7 +6,6 @@
 - name: restart tomcat
   service: name=tomcat7 state=restarted
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
-  ignore_errors: yes
 
 - name: restart iptables
   service: name=iptables state=restarted

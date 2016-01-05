@@ -72,7 +72,7 @@
   template: src=catalina.sh.j2 dest={{ tomcat_catalina_home_dir }}/bin/catalina.sh
   when: tomcat_startup_enabled
   tags: yourkit
-    
+
 - name: Tomcat can run any command with no password
   lineinfile: "line='tomcat ALL=NOPASSWD: ALL' dest=/etc/sudoers regexp='^tomcat' validate='visudo -cf %s'"
 
@@ -83,7 +83,8 @@
 - name: Start Tomcat
   service: name=tomcat7 state=started enabled=yes
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['12.04']) and tomcat_started_check_enable
-  
+  ignore_errors: yes
+
 #- name: deploy iptables rules
 #  template: src=iptables.j2 dest=/etc/sysconfig/iptables
 #  notify: restart iptables
