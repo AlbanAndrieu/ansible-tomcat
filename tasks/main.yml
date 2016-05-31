@@ -66,6 +66,26 @@
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
   notify: restart tomcat
 
+- name: Configure Tomcat web
+  template: src=web.xml.j2 dest={{ tomcat_catalina_home_dir }}/conf/web.xml
+  when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
+  notify: restart tomcat
+
+- name: Configure Tomcat web
+  template: src=web.xml.j2 dest={{ tomcat_conf_dir }}/web.xml
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  notify: restart tomcat
+
+- name: Configure Tomcat context
+  template: src=context.xml.j2 dest={{ tomcat_catalina_home_dir }}/conf/context.xml
+  when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
+  notify: restart tomcat
+
+- name: Configure Tomcat context
+  template: src=context.xml.j2 dest={{ tomcat_conf_dir }}/context.xml
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  notify: restart tomcat
+
 #- name: Install Tomcat init script
 #  copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
 

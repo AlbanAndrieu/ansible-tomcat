@@ -30,16 +30,14 @@
   <!.. ..> that surrounds them.
 -->
 
-  <role rolename="manager-gui"/>
-  <role rolename="admin-gui"/>
-  <user username="{{ tomcat_admin_username }}" password="{{ tomcat_admin_password }}" roles="admin-gui,manager-gui,manager-script"/>
+  <role rolename="{{ tomcat_admin_username }}" />
+  <role rolename="admin-gui" />
+  <role rolename="manager" />
+  <role rolename="manager-gui" />
+  <role rolename="manager-script" />
+  <role rolename="manager-jmx" />
+  <role rolename="manager-status" />
+  <user username="{{ tomcat_admin_username }}" password="{{ tomcat_admin_password }}" roles="tomcat,manager-gui,manager-script,manager-jmx,manager-status,admin-gui"/>
 
-<!--
-  <role rolename="tomcat"/>
-  <role rolename="role1"/>
-  <user username="tomcat" password="tomcat" roles="tomcat"/>
-  <user username="both" password="tomcat" roles="tomcat,role1"/>
-  <user username="role1" password="tomcat" roles="role1"/>
--->
 
 </tomcat-users>

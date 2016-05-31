@@ -1,7 +1,7 @@
 # Here are variables related to the Tomcat installation
 
 tomcat_http_port: 8280
-tomcat_https_port: 8443
+tomcat_https_port: 8444
 
 tomcat_catalina_home_dir: "/usr/share/tomcat7"
 tomcat_catalina_base_dir: "/var/lib/tomcat7"
