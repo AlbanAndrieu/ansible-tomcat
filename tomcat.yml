@@ -3,6 +3,6 @@
   sudo: true
   roles:
     - { role: ./,
-        tomcat_started_check_enable: no,
+#        tomcat_started_check_enable: no,
         docker_files_enable: yes
       }

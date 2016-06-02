@@ -13,5 +13,5 @@ tomcat_admin_username: admin
 tomcat_admin_password: microsoft
 
 tomcat_jdk_enable: no
-tomcat_started_check_enable: yes
-tomcat_startup_enabled: no #Disable specific overrid of catalina.sh
+tomcat_started_check_enable: no
+tomcat_startup_enabled: no #Disable specific override of catalina.sh
