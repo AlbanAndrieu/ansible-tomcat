@@ -1,15 +1,26 @@
 ---
 
 #see jenkins-slave for a better java install
-- name: Install Java 1.7
+- name: Install Java 1.7 (yum)
   yum: name=java-1.7.0-openjdk state=present
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux') and tomcat_jdk_enable
+  become : yes
 
-- name: Install Java 1.7
-  apt: pkg=openjdk-7-jdk state=present update_cache=yes
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and tomcat_jdk_enable
+- name: Install Java 1.7 (apt)
+  apt: pkg={{ item }} state=present
+  with_items:
+   - openjdk-7-jdk
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and ansible_distribution_version not in ['16.04'] and tomcat_jdk_enable
+  become : yes
 
-#- name: Install Tomcat
+- name: Install Java 1.8 (apt)
+  apt: pkg={{ item }} state=present
+  with_items:
+   - openjdk-8-jdk  
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and ansible_distribution_version not in ['12.04', '14.04'] and tomcat_jdk_enable    
+  become : yes
+
+#- name: Install Tomcat (yum)
 #  yum: name={{ item }} state=present
 #  when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
 #  with_items:
@@ -18,15 +29,27 @@
 #   - tomcat7-examples
 #   - tomcat7-admin
 
-- name: Install Tomcat
+- name: Install Tomcat 7 (apt)
   apt: pkg={{ item }} state=present update_cache=yes
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and ansible_distribution_version not in ['16.04']
   with_items:
    - libtcnative-1
    - tomcat7
    - tomcat7-docs
    - tomcat7-examples
    - tomcat7-admin
+  become : yes
+     
+- name: Install Tomcat 8 (apt)
+  apt: pkg={{ item }} state=present update_cache=yes  
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and ansible_distribution_version not in ['12.04', '14.04']       
+  with_items:
+   - libtcnative-1
+   - tomcat8
+   - tomcat8-docs
+   - tomcat8-examples
+   - tomcat8-admin
+  become : yes   
 
 #- name: Download Tomcat
 #  get_url: url=https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.55/bin/apache-tomcat-7.0.55.tar.gz dest=/opt/apache-tomcat-7.0.55.tar.gz
