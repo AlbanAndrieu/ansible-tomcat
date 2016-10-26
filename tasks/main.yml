@@ -20,30 +20,19 @@
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and ansible_distribution_version not in ['12.04', '14.04'] and tomcat_jdk_enable
   become : yes
 
-#- name: Install Tomcat (yum)
-#  yum: name={{ item }} state=present
-#  when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
-#  with_items:
-#   - tomcat7
-#   - tomcat7-docs
-#   - tomcat7-examples
-#   - tomcat7-admin
-
 - name: Install Tomcat dependencies
-  apt: pkg={{ item }} state=present update_cache=yes
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  action: "{{ ansible_pkg_mgr}} name={{ item }} update_cache=yes state={{ util_pkg_state|default('present') }}"
   with_items:
    - libtcnative-1
   become : yes
 
-- name: Install Tomcat (apt)
-  apt: pkg={{ item }} state=present update_cache=yes
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+- name: Install Tomcat
+  action: "{{ ansible_pkg_mgr}} name={{ item }} update_cache=yes state={{ util_pkg_state|default('present') }}"
   with_items:
-   - {{tomcat_name}}
-   - {{tomcat_name}}-docs
-   - {{tomcat_name}}-examples
-   - {{tomcat_name}}-admin
+   - "{{tomcat_name}}"
+   - "{{tomcat_name}}-docs"
+   - "{{tomcat_name}}-examples"
+   - "{{tomcat_name}}-admin"
   become : yes
 
 #- name: Download Tomcat
@@ -120,7 +109,7 @@
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux') and tomcat_started_check_enable
 
 - name: Start Tomcat
-  service: name=tomcat7 state=started enabled=yes
+  service: name="{{tomcat_name}}" state=started enabled=yes
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['12.04']) and tomcat_started_check_enable
 #  ignore_errors: yes
 

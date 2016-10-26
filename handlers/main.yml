@@ -4,7 +4,7 @@
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
 
 - name: restart tomcat
-  service: name=tomcat7 state=restarted
+  service: name="{{tomcat_name}}" state=restarted
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
 
 - name: restart iptables
