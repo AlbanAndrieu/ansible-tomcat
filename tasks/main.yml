@@ -3,21 +3,21 @@
 #see jenkins-slave for a better java install
 - name: Install Java 1.7 (yum)
   yum: name=java-1.7.0-openjdk state=present
-  when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux') and tomcat_jdk_enable
+  when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux') and tomcat_jdk_enable and tomcat_version == "7"
   become : yes
 
 - name: Install Java 1.7 (apt)
   apt: pkg={{ item }} state=present
   with_items:
    - openjdk-7-jdk
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and ansible_distribution_version not in ['16.04'] and tomcat_jdk_enable
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and ansible_distribution_version not in ['16.04'] and tomcat_jdk_enable and tomcat_version == "7"
   become : yes
 
 - name: Install Java 1.8 (apt)
   apt: pkg={{ item }} state=present
   with_items:
    - openjdk-8-jdk
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and ansible_distribution_version not in ['12.04', '14.04'] and tomcat_jdk_enable
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and ansible_distribution_version not in ['12.04', '14.04'] and tomcat_jdk_enable and tomcat_version != "7"
   become : yes
 
 - name: Install Tomcat dependencies
@@ -56,41 +56,49 @@
 - name: Configure Tomcat server
   template: src=server.xml.j2 dest={{ tomcat_catalina_home_dir }}/conf/server.xml
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
+  become : yes  
   notify: restart tomcat
 
 - name: Configure Tomcat server
   template: src=server.xml.j2 dest={{ tomcat_catalina_base_dir }}/conf/server.xml
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  become : yes  
   notify: restart tomcat
 
 - name: Configure Tomcat users
   template: src=tomcat-users.xml.j2 dest={{ tomcat_catalina_home_dir }}/conf/tomcat-users.xml
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
+  become : yes  
   notify: restart tomcat
 
 - name: Configure Tomcat users
   template: src=tomcat-users.xml.j2 dest={{ tomcat_conf_dir }}/tomcat-users.xml
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  become : yes  
   notify: restart tomcat
 
 - name: Configure Tomcat web
   template: src=web.xml.j2 dest={{ tomcat_catalina_home_dir }}/conf/web.xml
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
+  become : yes  
   notify: restart tomcat
 
 - name: Configure Tomcat web
   template: src=web.xml.j2 dest={{ tomcat_conf_dir }}/web.xml
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  become : yes  
   notify: restart tomcat
 
 - name: Configure Tomcat context
   template: src=context.xml.j2 dest={{ tomcat_catalina_home_dir }}/conf/context.xml
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
+  become : yes  
   notify: restart tomcat
 
 - name: Configure Tomcat context
   template: src=context.xml.j2 dest={{ tomcat_conf_dir }}/context.xml
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  become : yes  
   notify: restart tomcat
 
 #- name: Install Tomcat init script
@@ -98,19 +106,34 @@
 
 - name: Configure tomcat startup file
   template: src=catalina.sh.j2 dest={{ tomcat_catalina_home_dir }}/bin/catalina.sh
-  when: tomcat_startup_enabled
-  tags: yourkit
+  when: tomcat_startup_enabled and tomcat_version == "7"
+  become : yes  
+  tags: tomcat
+
+- name: Install boot service script
+  template:
+    src=tomcat.service.j2
+    dest="/lib/systemd/system/{{ tomcat_name }}.service"
+    owner=root
+    group=root
+     mode=0755
+  when: tomcat_startup_enabled and tomcat_version == "7"
+  become : yes    
+#  notify: restart tomcat
 
 - name: Tomcat can run any command with no password
   lineinfile: "line='tomcat ALL=NOPASSWD: ALL' dest=/etc/sudoers regexp='^tomcat' validate='visudo -cf %s'"
+  become : yes  
 
 - name: Start Tomcat
   service: name=tomcat state=started enabled=yes
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux') and tomcat_started_check_enable
+  become : yes    
 
 - name: Start Tomcat
   service: name="{{tomcat_name}}" state=started enabled=yes
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['12.04']) and tomcat_started_check_enable
+  become : yes    
 #  ignore_errors: yes
 
 #- name: deploy iptables rules
