@@ -3,7 +3,7 @@
 tomcat_http_port: 8280
 tomcat_https_port: 8444
 
-tomcat_version: "8"
+tomcat_version: "7"
 tomcat_name: "tomcat{{tomcat_version}}"
 tomcat_catalina_home_dir: "/usr/share/{{tomcat_name}}"
 tomcat_catalina_base_dir: "/var/lib/{{tomcat_name}}"
