@@ -92,7 +92,9 @@
 
     <Connector port="{{ tomcat_https_port }}" protocol="HTTP/1.1"
                SSLEnabled="true" server="nabla"
-               maxThreads="150" scheme="https" secure="true"
+               maxThreads="25" scheme="https" 
+               secure="true" acceptCount="100"
+               keystoreFile="/workspace/users/albandri10/.keystore" keystorePass="password"
                clientAuth="false" connectionTimeout="20000"
                sslProtocol="TLSv1.2" sslEnabledProtocols="TLSv1.2"
                URIEncoding="UTF-8" maxHttpHeaderSize="32768"
