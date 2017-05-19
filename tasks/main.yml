@@ -26,13 +26,20 @@
    - libtcnative-1
   become : yes
 
+- name: Install Tomcat dependencies
+  action: "{{ ansible_pkg_mgr}} name={{ item }} update_cache=yes state={{ util_pkg_state|default('present') }}"
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version in ['17.04'])  
+  with_items:
+   - libservlet3.1-java
+  become : yes
+  
 - name: Install Tomcat
   action: "{{ ansible_pkg_mgr}} name={{ item }} update_cache=yes state={{ util_pkg_state|default('present') }}"
   with_items:
-   - "{{tomcat_name}}"
-   - "{{tomcat_name}}-docs"
-   - "{{tomcat_name}}-examples"
-   - "{{tomcat_name}}-admin"
+   - "{{ tomcat_name }}"
+   - "{{ tomcat_name }}-docs"
+   - "{{ tomcat_name }}-examples"
+   - "{{ tomcat_name }}-admin"
   become : yes
 
 #- name: Download Tomcat
@@ -61,7 +68,7 @@
 
 - name: Configure Tomcat server
   template: src=server.xml.j2 dest={{ tomcat_catalina_base_dir }}/conf/server.xml
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['17.04'])
   become : yes  
   notify: restart tomcat
 
@@ -73,7 +80,7 @@
 
 - name: Configure Tomcat users
   template: src=tomcat-users.xml.j2 dest={{ tomcat_conf_dir }}/tomcat-users.xml
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['17.04'])
   become : yes  
   notify: restart tomcat
 
@@ -85,7 +92,7 @@
 
 - name: Configure Tomcat web
   template: src=web.xml.j2 dest={{ tomcat_conf_dir }}/web.xml
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['17.04'])
   become : yes  
   notify: restart tomcat
 
@@ -97,12 +104,25 @@
 
 - name: Configure Tomcat context
   template: src=context.xml.j2 dest={{ tomcat_conf_dir }}/context.xml
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['17.04'])
   become : yes  
   notify: restart tomcat
 
 #- name: Install Tomcat init script
 #  copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
+
+
+#TODO Ubuntu 17.04
+#Add 
+#CATALINA_HOME=/usr/share/tomcat8
+#CATALINA_BASE=/var/lib/tomcat8
+#inside /etc/default/tomcat8
+
+#sudo chown tomcat8:tomcat8 /usr/share/tomcat8
+#sudo chown tomcat8:tomcat8 /var/lib/tomcat8
+#sudo chown -R tomcat8:tomcat8 /usr/share/tomcat8/bin/*
+#sudo mkdir /var/lib/tomcat8/temp
+#sudo chown -R tomcat8:tomcat8  /var/lib/tomcat8/webapps/ /var/lib/tomcat8/work/ /var/lib/tomcat8/temp/ /var/lib/tomcat8/logs/
 
 - name: Configure tomcat startup file
   template: src=catalina.sh.j2 dest={{ tomcat_catalina_home_dir }}/bin/catalina.sh
@@ -141,6 +161,7 @@
 #  notify: restart iptables
 
 - name: wait for tomcat to start
-  wait_for: port={{ tomcat_http_port }}
+  wait_for: port="{{ tomcat_http_port }}" timeout=10
+  #host="{{ tomcat_http_host }}"
   when: (ansible_distribution_version not in ['12.04']) and tomcat_started_check_enable
 #  ignore_errors: yes
