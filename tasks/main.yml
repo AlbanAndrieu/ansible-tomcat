@@ -89,7 +89,7 @@
 
 - name: Configure Tomcat web
   template: src=web.xml.j2 dest={{ tomcat_conf_dir }}/web.xml
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['17.04'])
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
   become : yes
   notify: restart tomcat
 
@@ -101,7 +101,7 @@
 
 - name: Configure Tomcat context
   template: src=context.xml.j2 dest={{ tomcat_conf_dir }}/context.xml
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['17.04'])
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') 
   become : yes
   notify: restart tomcat
 

@@ -13,7 +13,7 @@ tomcat_user: "{{ tomcat_name }}"
 tomcat_group: "{{ tomcat_name }}"
 
 tomcat_java_home: "/usr/lib/jvm/java-8-openjdk-amd64/jre"
-tomcat_keystore_file: "/workspace/users/albandri10/.keystore"
+tomcat_keystore_file: "~/.keystore"
 
 # This will configure a default manager-gui user:
 
