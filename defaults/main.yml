@@ -13,6 +13,7 @@ tomcat_user: "{{ tomcat_name }}"
 tomcat_group: "{{ tomcat_name }}"
 
 tomcat_java_home: "/usr/lib/jvm/java-8-openjdk-amd64/jre"
+tomcat_keystore_file: "/workspace/users/albandri10/.keystore"
 
 # This will configure a default manager-gui user:
 
@@ -22,3 +23,4 @@ tomcat_admin_password: microsoft
 tomcat_jdk_enable: no
 tomcat_started_check_enable: no
 tomcat_startup_enabled: no #Disable specific override of catalina.sh
+tomcat_ssl_enabled: yes

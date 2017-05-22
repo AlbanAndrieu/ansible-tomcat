@@ -28,11 +28,11 @@
 
 - name: Install Tomcat dependencies
   action: "{{ ansible_pkg_mgr}} name={{ item }} update_cache=yes state={{ util_pkg_state|default('present') }}"
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version in ['17.04'])  
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version in ['17.04'])
   with_items:
    - libservlet3.1-java
   become : yes
-  
+
 - name: Install Tomcat
   action: "{{ ansible_pkg_mgr}} name={{ item }} update_cache=yes state={{ util_pkg_state|default('present') }}"
   with_items:
@@ -57,103 +57,182 @@
 #- name: Add user "tomcat"
 #  user: name=tomcat group=tomcat home=/usr/share/tomcat
 
-#- name: Change ownership of Tomcat installation
-#  file: path={{ tomcat_catalina_home_dir }}/ owner=tomcat group=tomcat state=directory recurse=yes
-
 - name: Configure Tomcat server
   template: src=server.xml.j2 dest={{ tomcat_catalina_home_dir }}/conf/server.xml
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
-  become : yes  
+  become : yes
   notify: restart tomcat
 
 - name: Configure Tomcat server
   template: src=server.xml.j2 dest={{ tomcat_catalina_base_dir }}/conf/server.xml
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['17.04'])
-  become : yes  
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  become : yes
   notify: restart tomcat
 
 - name: Configure Tomcat users
   template: src=tomcat-users.xml.j2 dest={{ tomcat_catalina_home_dir }}/conf/tomcat-users.xml
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
-  become : yes  
+  become : yes
   notify: restart tomcat
 
 - name: Configure Tomcat users
   template: src=tomcat-users.xml.j2 dest={{ tomcat_conf_dir }}/tomcat-users.xml
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['17.04'])
-  become : yes  
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  become : yes
   notify: restart tomcat
 
 - name: Configure Tomcat web
   template: src=web.xml.j2 dest={{ tomcat_catalina_home_dir }}/conf/web.xml
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
-  become : yes  
+  become : yes
   notify: restart tomcat
 
 - name: Configure Tomcat web
   template: src=web.xml.j2 dest={{ tomcat_conf_dir }}/web.xml
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['17.04'])
-  become : yes  
+  become : yes
   notify: restart tomcat
 
 - name: Configure Tomcat context
   template: src=context.xml.j2 dest={{ tomcat_catalina_home_dir }}/conf/context.xml
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux')
-  become : yes  
+  become : yes
   notify: restart tomcat
 
 - name: Configure Tomcat context
   template: src=context.xml.j2 dest={{ tomcat_conf_dir }}/context.xml
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['17.04'])
-  become : yes  
+  become : yes
   notify: restart tomcat
 
 #- name: Install Tomcat init script
 #  copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
 
-
 #TODO Ubuntu 17.04
-#Add 
+#Add
 #CATALINA_HOME=/usr/share/tomcat8
 #CATALINA_BASE=/var/lib/tomcat8
 #inside /etc/default/tomcat8
 
+- name: Configure tomcat default file
+  template: src=default.j2 dest="/etc/default/{{ tomcat_conf_dir }}"
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version in ['17.04']) and tomcat_version == "8"
+  become : yes
+  tags: tomcat
+
 #sudo chown tomcat8:tomcat8 /usr/share/tomcat8
+
+- name: Change ownership of Tomcat catalina home installation
+  file: path={{ tomcat_catalina_home_dir }}/ owner={{ tomcat_user }} group={{ tomcat_group }} state=directory 
+  become : yes
+  tags: tomcat
+
 #sudo chown tomcat8:tomcat8 /var/lib/tomcat8
+  
+- name: Change ownership of Tomcat catalina base installation
+  file: path={{ tomcat_catalina_base_dir }}/ owner={{ tomcat_user }} group={{ tomcat_group }} state=directory
+  become : yes
+  tags: tomcat
+    
 #sudo chown -R tomcat8:tomcat8 /usr/share/tomcat8/bin/*
+
+- name: Change ownership of Tomcat catalina home bin installation
+  file: path={{ tomcat_catalina_home_dir }}/bin owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
+  become : yes
+  tags: tomcat
+  
+- name: Change ownership of Tomcat catalina home lib installation
+  file: path={{ tomcat_catalina_home_dir }}/lib owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
+  become : yes
+  tags: tomcat
+    
 #sudo mkdir /var/lib/tomcat8/temp
+
+- name: Create temp directory
+  file: path="{{ tomcat_catalina_base_dir }}/temp" state=directory
+  become: yes
+  #when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+
 #sudo chown -R tomcat8:tomcat8  /var/lib/tomcat8/webapps/ /var/lib/tomcat8/work/ /var/lib/tomcat8/temp/ /var/lib/tomcat8/logs/
 
+- name: Update tomcat ownership
+  file: path={{ item }} owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
+  with_items:
+   - "{{ tomcat_catalina_base_dir }}/webapps/"
+   - "{{ tomcat_catalina_base_dir }}/work/"
+   - "{{ tomcat_catalina_base_dir }}/temp/"
+   - "{{ tomcat_catalina_base_dir }}/logs/"
+  become: yes
+  #when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+
+- name: eclipse | Create dev conf link (Eclipse required)
+  file: path={{ tomcat_catalina_home_dir }}/conf src={{ tomcat_catalina_base_dir }}/conf state=link
+  become: yes
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+    
+#Fix SEVERE http://www.jouvinio.net/wiki/index.php/Mise_%C3%A0_jour_Tomcat_8_Ubuntu
+- name: eclipse | Create dev common folder (Eclipse required)
+  file: path={{ tomcat_catalina_home_dir }}/common/classes owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
+  become: yes
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  
+- name: eclipse | Create dev server folder (Eclipse required)
+  file: path={{ tomcat_catalina_home_dir }}/server/classes owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
+  become: yes
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+  
+- name: eclipse | Create dev shared folder (Eclipse required)
+  file: path={{ tomcat_catalina_home_dir }}/shared/classes owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
+  become: yes
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
+    
 - name: Configure tomcat startup file
   template: src=catalina.sh.j2 dest={{ tomcat_catalina_home_dir }}/bin/catalina.sh
   when: tomcat_startup_enabled and tomcat_version == "7"
-  become : yes  
+  become : yes
   tags: tomcat
 
+#- name: Configure tomcat ssl
+#  command: keytool -genkey -alias tomcat -keyalg RSA -keystore {{ tomcat_keystore_file }} 
+#  when: tomcat_ssl_enabled and tomcat_version == "8"
+#  tags: tomcat
+##password changeit  
+#
+#- name: Check tomcat ssl
+#  command: keytool -list -keystore {{ tomcat_keystore_file }} 
+#  when: tomcat_ssl_enabled and tomcat_version == "8"
+#  tags: tomcat
+  
 - name: Install boot service script
   template:
     src=tomcat.service.j2
     dest="/lib/systemd/system/{{ tomcat_name }}.service"
     owner=root
     group=root
-     mode=0755
+    mode=0644
   #when: tomcat_startup_enabled and tomcat_version == "7"
-  become : yes    
+  become : yes
 #  notify: restart tomcat
 
 - name: Tomcat can run any command with no password
   lineinfile: "line='tomcat ALL=NOPASSWD: ALL' dest=/etc/sudoers regexp='^tomcat' validate='visudo -cf %s'"
-  become : yes  
+  become : yes
+
+#TODO remove tomcat7
+#sudo apt-get purge tomcat7-common
+#sudo apt-get purge libservlet3.0-java libtomcat7-java
+#sudo rm -rf /usr/share/tomcat7
+#sudo rm -rf /var/lib/tomcat7
 
 - name: Start Tomcat
   service: name=tomcat state=started enabled=yes
   when: (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux') and tomcat_started_check_enable
-  become : yes    
+  become : yes
 
 - name: Start Tomcat
   service: name="{{tomcat_name}}" state=started enabled=yes
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version not in ['12.04']) and tomcat_started_check_enable
-  become : yes    
+  become : yes
 #  ignore_errors: yes
 
 #- name: deploy iptables rules

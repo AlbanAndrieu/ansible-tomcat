@@ -23,14 +23,15 @@
      Documentation at /docs/config/server.html
  -->
 <Server port="8005" shutdown="SHUTDOWN">
-<!--<Server port="-1" shutdown="SHUTDOWN">-->
+  <!--<Server port="-1" shutdown="SHUTDOWN">-->
+  <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
   <!-- Security listener. Documentation at /docs/config/listeners.html
   <Listener className="org.apache.catalina.security.SecurityListener" />
   -->
   <!--APR library loader. Documentation at /docs/apr.html -->
   <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
   <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html -->
-  <Listener className="org.apache.catalina.core.JasperListener" />
+  <!--<Listener className="org.apache.catalina.core.JasperListener" />-->
   <!-- Prevent memory leaks due to use of particular java/javax APIs-->
   <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
   <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
@@ -69,7 +70,7 @@
          Java HTTP Connector: /docs/config/http.html (blocking & non-blocking)
          Java AJP  Connector: /docs/config/ajp.html
          APR (HTTP/AJP) Connector: /docs/apr.html
-         Define a non-SSL HTTP/1.1 Connector on port 8080
+         Define a non-SSL/TLS HTTP/1.1 Connector on port 8080
     -->
     <Connector port="{{ tomcat_http_port }}" protocol="HTTP/1.1"
                redirectPort="{{ tomcat_https_port }}" server="nabla"
@@ -90,11 +91,11 @@
          connector should be using the OpenSSL style configuration
          described in the APR documentation -->
 
-    <Connector port="{{ tomcat_https_port }}" protocol="HTTP/1.1"
+    <Connector port="{{ tomcat_https_port }}" protocol="org.apache.coyote.http11.Http11NioProtocol"
                SSLEnabled="true" server="nabla"
-               maxThreads="25" scheme="https" 
+               maxThreads="150" scheme="https" 
                secure="true" acceptCount="100"
-               keystoreFile="/workspace/users/albandri10/.keystore" keystorePass="password"
+               keystoreFile="/workspace/users/albandri10/.keystore" keystorePass="changeit"
                clientAuth="false" connectionTimeout="20000"
                sslProtocol="TLSv1.2" sslEnabledProtocols="TLSv1.2"
                URIEncoding="UTF-8" maxHttpHeaderSize="32768"
@@ -148,7 +149,7 @@
              Documentation at: /docs/config/valve.html
              Note: The pattern used is equivalent to using pattern="common" -->
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
-               prefix="localhost_access_log." suffix=".txt"
+               prefix="localhost_access_log" suffix=".txt"
                pattern="%h %l %u %t &quot;%r&quot; %s %b" />
 
       </Host>
