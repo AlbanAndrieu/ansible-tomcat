@@ -115,7 +115,7 @@
 #inside /etc/default/tomcat8
 
 - name: Configure tomcat default file
-  template: src=default.j2 dest="/etc/default/{{ tomcat_conf_dir }}"
+  template: src=default.j2 dest="/etc/default/{{ tomcat_name }}"
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') and (ansible_distribution_version in ['17.04']) and tomcat_version == "8"
   become : yes
   tags: tomcat
