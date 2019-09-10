@@ -9,8 +9,8 @@ tomcat_catalina_home_dir: "/usr/share/{{ tomcat_name }}"
 tomcat_catalina_base_dir: "/var/lib/{{ tomcat_name }}"
 tomcat_conf_dir: "/etc/{{ tomcat_name }}"
 
-tomcat_user: "{{ tomcat_name }}"
-tomcat_group: "{{ tomcat_name }}"
+tomcat_user: "tomcat"
+tomcat_group: "tomcat"
 
 tomcat_java_home: "/usr/lib/jvm/java-8-openjdk-amd64/jre"
 tomcat_keystore_file: "~/.keystore"

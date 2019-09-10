@@ -101,7 +101,7 @@
 
 - name: Configure Tomcat context
   template: src=context.xml.j2 dest={{ tomcat_conf_dir }}/context.xml
-  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu') 
+  when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
   become : yes
   notify: restart tomcat
 
@@ -123,29 +123,29 @@
 #sudo chown tomcat8:tomcat8 /usr/share/tomcat8
 
 - name: Change ownership of Tomcat catalina home installation
-  file: path={{ tomcat_catalina_home_dir }}/ owner={{ tomcat_user }} group={{ tomcat_group }} state=directory 
+  file: path={{ tomcat_catalina_home_dir }}/ owner={{ tomcat_user }} group={{ tomcat_group }} state=directory
   become : yes
   tags: tomcat
 
 #sudo chown tomcat8:tomcat8 /var/lib/tomcat8
-  
+
 - name: Change ownership of Tomcat catalina base installation
   file: path={{ tomcat_catalina_base_dir }}/ owner={{ tomcat_user }} group={{ tomcat_group }} state=directory
   become : yes
   tags: tomcat
-    
+
 #sudo chown -R tomcat8:tomcat8 /usr/share/tomcat8/bin/*
 
 - name: Change ownership of Tomcat catalina home bin installation
   file: path={{ tomcat_catalina_home_dir }}/bin owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
   become : yes
   tags: tomcat
-  
+
 - name: Change ownership of Tomcat catalina home lib installation
   file: path={{ tomcat_catalina_home_dir }}/lib owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
   become : yes
   tags: tomcat
-    
+
 #sudo mkdir /var/lib/tomcat8/temp
 
 - name: Create temp directory
@@ -169,23 +169,23 @@
   file: path={{ tomcat_catalina_home_dir }}/conf src={{ tomcat_catalina_base_dir }}/conf state=link
   become: yes
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
-    
+
 #Fix SEVERE http://www.jouvinio.net/wiki/index.php/Mise_%C3%A0_jour_Tomcat_8_Ubuntu
 - name: eclipse | Create dev common folder (Eclipse required)
   file: path={{ tomcat_catalina_home_dir }}/common/classes owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
   become: yes
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
-  
+
 - name: eclipse | Create dev server folder (Eclipse required)
   file: path={{ tomcat_catalina_home_dir }}/server/classes owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
   become: yes
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
-  
+
 - name: eclipse | Create dev shared folder (Eclipse required)
   file: path={{ tomcat_catalina_home_dir }}/shared/classes owner={{ tomcat_user }} group={{ tomcat_group }} state=directory recurse=yes
   become: yes
   when: (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
-    
+
 - name: Configure tomcat startup file
   template: src=catalina.sh.j2 dest={{ tomcat_catalina_home_dir }}/bin/catalina.sh
   when: tomcat_startup_enabled and tomcat_version == "7"
@@ -193,16 +193,16 @@
   tags: tomcat
 
 #- name: Configure tomcat ssl
-#  command: keytool -genkey -alias tomcat -keyalg RSA -keystore {{ tomcat_keystore_file }} 
+#  command: keytool -genkey -alias tomcat -keyalg RSA -keystore {{ tomcat_keystore_file }}
 #  when: tomcat_ssl_enabled and tomcat_version == "8"
 #  tags: tomcat
-##password changeit  
+##password changeit
 #
 #- name: Check tomcat ssl
-#  command: keytool -list -keystore {{ tomcat_keystore_file }} 
+#  command: keytool -list -keystore {{ tomcat_keystore_file }}
 #  when: tomcat_ssl_enabled and tomcat_version == "8"
 #  tags: tomcat
-  
+
 - name: Install boot service script
   template:
     src=tomcat.service.j2
