@@ -1,36 +1,16 @@
 ---
-dependencies: []
-
-#dependencies:
-#  - { role: alban.andrieu.common }
-
-galaxy_info:
-  author: Alban Andrieu
-  description: 'tomcat described in 1 sentence...'
-  company: Nabla
-  license: Apache
-  min_ansible_version: '2.3.1.0'
-  platforms:
-    - name: Ubuntu
-      versions:
-        - precise
-        - trusty
-    - name: Debian
-      versions:
-        - wheezy
-        - jessie
-  categories:
-  - system
 
 ansigenome_info:
   galaxy_id: ''
+  galaxy_url: 'https://galaxy.ansible.com/alban.andrieu/tomcat/'
   galaxy_user: 'alban.andrieu'
   galaxy_name: 'tomcat'
+  galaxy_docker_name: 'ansible-tomcat'
 
   travis: True
 
   authors:
-    - name:  'Alban Andrieu'
+    - name: 'Alban Andrieu'
       url: 'fr.linkedin.com/in/nabla/'
       email: 'alban.andrieu@free.fr'
       twitter: 'AlbanAndrieu'

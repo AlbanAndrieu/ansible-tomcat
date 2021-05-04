@@ -2,7 +2,7 @@
 dependencies: []
 
 #dependencies:
-#  - { role: alban.andrieu.common }
+#  - { role: albanandrieu.ansible_common }
 
 galaxy_info:
   author: Alban Andrieu
@@ -20,4 +20,4 @@ galaxy_info:
         - wheezy
         - jessie
   categories:
-  - system
+    - system
